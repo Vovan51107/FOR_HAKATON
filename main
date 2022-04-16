@@ -1,0 +1,37 @@
+import time
+from telebot import *
+
+token = "5357276768:AAFUwmNYw3IkeCMzbLZxGr_ZjjqouBg8kGI"
+
+bot = telebot.TeleBot(token)
+
+nap = []
+
+
+@bot.message_handler(commands='start')
+def start(message):
+    bot.send_message(message.chat.id, 'Для создания напоминания введите /remind')
+
+
+@bot.message_handler(commands='remind')
+def remind(message):
+    sent = bot.send_message(message.chat.id, "Что вам нужно напомнить?")
+    bot.register_next_step_handler(sent, save_name)
+
+
+def save_name(message):
+    link = message.text
+    nap.append(link)
+    nya = bot.send_message(message.chat.id, "Сохранено, введите время до напоминания (в минутах)")
+    bot.register_next_step_handler(nya, save_time)
+
+
+def save_time(message):
+    timer = message.text
+    timer = timer * 60
+    bot.send_message(message.chat.id, "Сохранено, напомню когда придёт время")
+    time.sleep(int(timer))
+    bot.send_message(message.chat.id, "Напоминаю, вы хотели " + nap[0])
+
+
+bot.polling()
